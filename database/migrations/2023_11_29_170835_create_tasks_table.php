@@ -16,6 +16,7 @@ return new class extends Migration {
       $table->integer('duration');
       $table->float('progress');
       $table->dateTime('start_date');
+      $table->dateTime('end_date')->nullable();
       $table->integer('parent');
       $table->integer('sortorder')->default(0);
       $table->timestamps();

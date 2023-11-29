@@ -5,6 +5,10 @@
 
 @push('scripts')
     <script type="text/javascript">
+        gantt.plugins({
+            marker: true
+        });
+
         gantt.config.date_format = "%Y-%m-%d %H:%i:%s";
         gantt.config.order_branch = true; /*!*/
         gantt.config.order_branch_free = true; /*!*/
@@ -12,12 +16,12 @@
             marker: true
         });
         var dateToStr = gantt.date.date_to_str(gantt.config.task_date);
-
-        var id = gantt.addMarker({
-            start_date: new Date(),
+        var today = new Date();
+        gantt.addMarker({
+            start_date: today,
             css: "today",
             text: "Today",
-            title: dateToStr(new Date())
+            title: "Today: " + dateToStr(today)
         });
         setInterval(function() {
             var today = gantt.getMarker(id);

@@ -13,6 +13,7 @@ class TaskController extends Controller
 
     $task->text = $request->text;
     $task->start_date = $request->start_date;
+    $task->end_date = $request->end_date;
     $task->duration = $request->duration;
     $task->progress = $request->has('progress') ? $request->progress : 0;
     $task->parent = $request->parent;
@@ -32,6 +33,7 @@ class TaskController extends Controller
 
     $task->text = $request->text;
     $task->start_date = $request->start_date;
+    $task->end_date = $request->end_date;
     $task->duration = $request->duration;
     $task->progress = $request->has('progress') ? $request->progress : 0;
     $task->parent = $request->parent;
