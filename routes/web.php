@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\GanttController;
+use App\Livewire\Penjadwalan\Components\TimelineSchedule;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,4 +26,9 @@ Route::get('/pages/misc-error', $controller_path . '\pages\MiscError@index')->na
 
 // authentication
 Route::get('/auth/login-basic', $controller_path . '\authentications\LoginBasic@index')->name('auth-login-basic');
-Route::get('/auth/register-basic', $controller_path . '\authentications\RegisterBasic@index')->name('auth-register-basic');
+Route::get('/auth/register-basic', $controller_path . '\authentications\RegisterBasic@index')->name(
+  'auth-register-basic'
+);
+
+Route::get('/timeline-schedule', TimelineSchedule::class)->name('timelineSchedule');
+// Route::get('/data', [GanttController::class, 'get']);

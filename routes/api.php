@@ -2,6 +2,9 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LinkController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\GanttController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,5 +18,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+  return $request->user();
 });
+
+Route::get('/data', [GanttController::class, 'get']);
+
+Route::resource('task', TaskController::class);
+Route::resource('link', LinkController::class);
