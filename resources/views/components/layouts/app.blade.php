@@ -15,7 +15,10 @@
 <body>
     {{ $slot }}
 
-
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js?v=5.2.4"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.js?v=5.2.4"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.css?v=5.2.4">
     <script src="{{ asset('assets/vendor/libs/gantt-chart/dhtmlxgantt.js') }}"></script>
 
     @stack('scripts')
