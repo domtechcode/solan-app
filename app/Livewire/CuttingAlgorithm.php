@@ -8,8 +8,8 @@ use Livewire\Attributes\Renderless;
 class CuttingAlgorithm extends Component
 {
     public $quantityItems = 10000;
-    public $itemsLength;
-    public $itemsWidth;
+    public $itemsLength = 18.5;
+    public $itemsWidth = 5;
     public $gapBetweenItems = 0.2;
     public $minimalLengthSheet = 18;
     public $minimalWidthSheet = 11.6;
@@ -19,8 +19,8 @@ class CuttingAlgorithm extends Component
     public $sheetMarginBottom = 0.5;
     public $sheetMarginLeft = 0.5;
     public $sheetMarginRight = 0.5;
-    public $planoLength;
-    public $planoWidth;
+    public $planoLength = 109;
+    public $planoWidth = 79;
     public $orientationSheet; //'landscape', 'Potrait'
     public $orientationPlano; //'landscape', 'Potrait', 'Auto Rotate'
 
@@ -70,21 +70,21 @@ class CuttingAlgorithm extends Component
 
                 if ($sheetLength >= $minimalLengthSheet && $sheetLength <= $maximalLengthSheet && ($sheetWidth >= $minimalWidthSheet && $sheetWidth <= $maximalWidthSheet)) {
                     $results[] = [
-                        'col' => $col_counter,
-                        'row' => $row_counter,
-                        'sheetLength' => $sheetLength,
-                        'sheetWidth' => $sheetWidth,
-                        'wasteLength' => $maximalLengthSheet - $sheetLength,
-                        'wasteWidth' => $maximalWidthSheet - $sheetWidth,
+                        'col' => (int) $col_counter,
+                        'row' => (int) $row_counter,
+                        'sheetLength' => (float) $sheetLength,
+                        'sheetWidth' => (float) $sheetWidth,
+                        'wasteLength' => (float) $maximalLengthSheet - $sheetLength,
+                        'wasteWidth' => (float) $maximalWidthSheet - $sheetWidth,
                         'orientationSheet' => $orientationSheet,
-                        'itemsPerSheet' => $col_counter * $row_counter,
-                        'itemsLength' => $itemsLength,
-                        'itemsWidth' => $itemsWidth,
-                        'gapBetweenItems' => $gapBetweenItems,
-                        'sheetMarginTop' => $sheetMarginTop,
-                        'sheetMarginBottom' => $sheetMarginBottom,
-                        'sheetMarginLeft' => $sheetMarginLeft,
-                        'sheetMarginRight' => $sheetMarginRight,
+                        'itemsPerSheet' => (float) $col_counter * $row_counter,
+                        'itemsLength' => (float) $itemsLength,
+                        'itemsWidth' => (float) $itemsWidth,
+                        'gapBetweenItems' => (float) $gapBetweenItems,
+                        'sheetMarginTop' => (float) $sheetMarginTop,
+                        'sheetMarginBottom' => (float) $sheetMarginBottom,
+                        'sheetMarginLeft' => (float) $sheetMarginLeft,
+                        'sheetMarginRight' => (float) $sheetMarginRight,
                     ];
                 }
             }
@@ -100,21 +100,21 @@ class CuttingAlgorithm extends Component
             if ($totalWaste < $minWaste) {
                 $minWaste = $totalWaste;
                 $bestDimensionSheet = [
-                    'col' => (int)$result['col'],
-                    'row' => (int)$result['row'],
-                    'sheetLength' => (float)$result['sheetLength'],
-                    'sheetWidth' => (float)$result['sheetWidth'],
-                    'wasteLength' => (float)$result['wasteLength'],
-                    'wasteWidth' => (float)$result['wasteWidth'],
-                    'orientationSheet' => (float)$result['orientationSheet'],
-                    'itemsPerSheet' => (float)$result['itemsPerSheet'],
-                    'itemsLength' => (float)$result['itemsLength'],
-                    'itemsWidth' => (float)$result['itemsWidth'],
-                    'gapBetweenItems' => (float)$result['gapBetweenItems'],
-                    'sheetMarginTop' => (float)$result['sheetMarginTop'],
-                    'sheetMarginBottom' => (float)$result['sheetMarginBottom'],
-                    'sheetMarginLeft' => (float)$result['sheetMarginLeft'],
-                    'sheetMarginRight' => (float)$result['sheetMarginRight'],
+                    'col' => (int) $result['col'],
+                    'row' => (int) $result['row'],
+                    'sheetLength' => (float) $result['sheetLength'],
+                    'sheetWidth' => (float) $result['sheetWidth'],
+                    'wasteLength' => (float) $result['wasteLength'],
+                    'wasteWidth' => (float) $result['wasteWidth'],
+                    'orientationSheet' => (float) $result['orientationSheet'],
+                    'itemsPerSheet' => (float) $result['itemsPerSheet'],
+                    'itemsLength' => (float) $result['itemsLength'],
+                    'itemsWidth' => (float) $result['itemsWidth'],
+                    'gapBetweenItems' => (float) $result['gapBetweenItems'],
+                    'sheetMarginTop' => (float) $result['sheetMarginTop'],
+                    'sheetMarginBottom' => (float) $result['sheetMarginBottom'],
+                    'sheetMarginLeft' => (float) $result['sheetMarginLeft'],
+                    'sheetMarginRight' => (float) $result['sheetMarginRight'],
                 ];
             }
         }
@@ -124,9 +124,72 @@ class CuttingAlgorithm extends Component
         return $bestDimensionSheet;
     }
 
+    private function calculateAllSheetDimensions($itemsLength, $itemsWidth, $gapBetweenItems, $minimalLengthSheet, $minimalWidthSheet, $maximalLengthSheet, $maximalWidthSheet, $sheetMarginTop, $sheetMarginBottom, $sheetMarginLeft, $sheetMarginRight, $orientationSheet)
+    {
+        if ($orientationSheet == 'landscape') {
+            [$itemsLength, $itemsWidth] = [$itemsLength, $itemsWidth];
+        } else {
+            [$itemsLength, $itemsWidth] = [$itemsWidth, $itemsLength];
+        }
+
+        //landscape
+        $max_col = floor($maximalLengthSheet / $itemsLength);
+        $max_row = floor($maximalWidthSheet / $itemsWidth);
+
+        // Create an empty array to store the results
+        $results = [];
+
+        // Initialize row counter
+        $row_counter = 0;
+
+        // Run the while loop until maximum row is reached
+        while ($row_counter < $max_row) {
+            // Increment row counter
+            $row_counter++;
+
+            // Initialize col counter
+            $col_counter = 0;
+
+            // Reset sheetLength and sheetWidth for each new row
+            $sheetLength = 0;
+            $sheetWidth = 0;
+
+            // Run the while loop until maximum col is reached
+            while ($col_counter < $max_col) {
+                // Increment col counter
+                $col_counter++;
+
+                // Increment sheetLength and sheetWidth based on col and row counters
+                $sheetLength = $itemsLength * $col_counter + $gapBetweenItems * ($col_counter - 1) + $sheetMarginLeft + $sheetMarginRight;
+                $sheetWidth = $itemsWidth * $row_counter + $gapBetweenItems * ($row_counter - 1) + $sheetMarginTop + $sheetMarginBottom;
+
+                if ($sheetLength >= $minimalLengthSheet && $sheetLength <= $maximalLengthSheet && ($sheetWidth >= $minimalWidthSheet && $sheetWidth <= $maximalWidthSheet)) {
+                    $results[] = [
+                        'col' => (int) $col_counter,
+                        'row' => (int) $row_counter,
+                        'sheetLength' => (float) $sheetLength,
+                        'sheetWidth' => (float) $sheetWidth,
+                        'wasteLength' => (float) $maximalLengthSheet - $sheetLength,
+                        'wasteWidth' => (float) $maximalWidthSheet - $sheetWidth,
+                        'orientationSheet' => $orientationSheet,
+                        'itemsPerSheet' => (int) $col_counter * (int) $row_counter,
+                        'itemsLength' => (float) $itemsLength,
+                        'itemsWidth' => (float) $itemsWidth,
+                        'gapBetweenItems' => (float) $gapBetweenItems,
+                        'sheetMarginTop' => (float) $sheetMarginTop,
+                        'sheetMarginBottom' => (float) $sheetMarginBottom,
+                        'sheetMarginLeft' => (float) $sheetMarginLeft,
+                        'sheetMarginRight' => (float) $sheetMarginRight,
+                    ];
+                }
+            }
+        }
+
+        return $results;
+    }
+
     private function calculateNumSheetsInPlano($sheetLength, $sheetWidth, $itemsPerSheet, $planoLength, $planoWidth, $orientationPlano)
     {
-
         if ($orientationPlano == 'landscape') {
             [$sheetLength, $sheetWidth] = [$sheetLength, $sheetWidth];
         } else {
@@ -164,18 +227,18 @@ class CuttingAlgorithm extends Component
 
                 if ($cutSheetLength <= $planoLength && $cutSheetWidth <= $planoWidth) {
                     $results = [
-                        'col' => (int)$col_counter,
-                        'row' => (int)$row_counter,
-                        'planoLength' => (float)$planoLength,
-                        'planoWidth' => (float)$planoWidth,
-                        'sheetLength' => (float)$sheetLength,
-                        'sheetWidth' => (float)$sheetWidth,
-                        'cutSheetLength' => (float)$cutSheetLength,
-                        'cutSheetWidth' => (float)$cutSheetWidth,
-                        'wasteCutLength' => (float)$planoLength - $cutSheetLength,
-                        'wasteCutWidth' => (float)$planoWidth - $cutSheetWidth,
-                        'orientationPlano' => (float)$orientationPlano,
-                        'itemsPerPlano' => (int)$itemsPerSheet * ($col_counter * $row_counter),
+                        'col' => (int) $col_counter,
+                        'row' => (int) $row_counter,
+                        'planoLength' => (float) $planoLength,
+                        'planoWidth' => (float) $planoWidth,
+                        'sheetLength' => (float) $sheetLength,
+                        'sheetWidth' => (float) $sheetWidth,
+                        'cutSheetLength' => (float) $cutSheetLength,
+                        'cutSheetWidth' => (float) $cutSheetWidth,
+                        'wasteCutLength' => (float) $planoLength - $cutSheetLength,
+                        'wasteCutWidth' => (float) $planoWidth - $cutSheetWidth,
+                        'orientationPlano' => (float) $orientationPlano,
+                        'itemsPerPlano' => (int) $itemsPerSheet * ($col_counter * $row_counter),
                     ];
                 }
             }
@@ -186,155 +249,391 @@ class CuttingAlgorithm extends Component
         return $results;
     }
 
-    // private function calculateNumSheetsInPlano($resultSheet, $orientationPlano)
+    private function calculateNumSheetsAutoRotateInPlano($resultAllSheet, $planoLength, $planoWidth, $orientationPlano)
+    {
+        $results = [];
+
+        $sheetLength = $resultAllSheet['sheetLength'];
+        $sheetWidth = $resultAllSheet['sheetWidth'];
+        $itemsPerSheet = $resultAllSheet['itemsPerSheet'];
+
+        if ($orientationPlano == 'landscape') {
+            [$sheetLength, $sheetWidth] = [$sheetLength, $sheetWidth];
+        } else  if ($orientationPlano == 'potrait'){
+            [$sheetLength, $sheetWidth] = [$sheetWidth, $sheetLength];
+        }
+
+        $max_col = floor($planoLength / $sheetLength);
+        $max_row = floor($planoWidth / $sheetWidth);
+
+        // Initialize row counter
+        $row_counter = 0;
+
+        // Run the while loop until maximum row is reached
+        while ($row_counter < $max_row) {
+            // Increment row counter
+            $row_counter++;
+
+            // Initialize col counter
+            $col_counter = 0;
+
+            // Reset sheetLength and sheetWidth for each new row
+            $cutSheetLength = 0;
+            $cutSheetWidth = 0;
+
+            // Run the while loop until maximum col is reached
+            while ($col_counter < $max_col) {
+                // Increment col counter
+                $col_counter++;
+
+                // Increment sheetLength and sheetWidth based on col and row counters
+                $cutSheetLength = $sheetLength * $col_counter;
+                $cutSheetWidth = $sheetWidth * $row_counter;
+
+                if ($cutSheetLength <= $planoLength && $cutSheetWidth <= $planoWidth) {
+                    $resultAllSheetPlano = [
+                        'colSheet' => (int) $resultAllSheet['col'],
+                        'rowSheet' => (int) $resultAllSheet['row'],
+                        'col' => (int) $col_counter,
+                        'row' => (int) $row_counter,
+                        'planoLength' => (float) $planoLength,
+                        'planoWidth' => (float) $planoWidth,
+                        'sheetLength' => (float) $sheetLength,
+                        'sheetWidth' => (float) $sheetWidth,
+                        'cutSheetLength' => (float) $cutSheetLength,
+                        'cutSheetWidth' => (float) $cutSheetWidth,
+                        'wasteCutLength' => (float) $planoLength - $cutSheetLength,
+                        'wasteCutWidth' => (float) $planoWidth - $cutSheetWidth,
+                        'orientationSheet' => $resultAllSheet['orientationSheet'],
+                        'orientationPlano' => $orientationPlano,
+                        'itemsPerSheet' => (int) $resultAllSheet['itemsPerSheet'],
+                        'itemsPerPlano' => (int) $resultAllSheet['itemsPerSheet'] * ((int) $col_counter * (int) $row_counter),
+                    ];
+
+                    // Inisialisasi nilai tambahan dengan null
+                    $resultAllSheetPlano['planoLength_extra_1'] = null;
+                    $resultAllSheetPlano['planoWidth_extra_1'] = null;
+                    $resultAllSheetPlano['planoLength_extra_2'] = null;
+                    $resultAllSheetPlano['planoWidth_extra_2'] = null;
+
+                    // Logika penentuan nilai tambahan
+                    if ($resultAllSheetPlano['wasteCutLength'] >= $resultAllSheetPlano['sheetWidth'] || $resultAllSheetPlano['sheetLength'] >= $this->minimalLengthSheet) {
+                        $resultAllSheetPlano['planoLength_extra_1'] = $resultAllSheetPlano['wasteCutLength'];
+                        $resultAllSheetPlano['planoWidth_extra_1'] = $resultAllSheetPlano['planoWidth'];
+
+                        $resultAllSheetPlano['planoLength_extra_2'] = $resultAllSheetPlano['cutSheetLength'];
+                        $resultAllSheetPlano['planoWidth_extra_2'] = $resultAllSheetPlano['wasteCutWidth'];
+                    } elseif ($resultAllSheetPlano['wasteCutWidth'] >= $resultAllSheetPlano['sheetLength'] || $resultAllSheetPlano['sheetWidth'] >= $this->minimalWidthSheet) {
+                        $resultAllSheetPlano['planoLength_extra_1'] = $resultAllSheetPlano['wasteCutLength'];
+                        $resultAllSheetPlano['planoWidth_extra_1'] = $resultAllSheetPlano['cutSheetWidth'];
+
+                        $resultAllSheetPlano['planoLength_extra_2'] = $resultAllSheetPlano['planoLength'];
+                        $resultAllSheetPlano['planoWidth_extra_2'] = $resultAllSheetPlano['wasteCutWidth'];
+                    }
+
+                    $resultAllSheetPlano['col_extra_1'] = floor($resultAllSheetPlano['planoLength_extra_1'] / $resultAllSheetPlano['sheetWidth']);
+                    $resultAllSheetPlano['row_extra_1'] = floor($resultAllSheetPlano['planoWidth_extra_1'] / $resultAllSheetPlano['sheetLength']);
+                    $resultAllSheetPlano['item_per_plano_extra_1'] = $resultAllSheetPlano['itemsPerSheet'] * ((int) $resultAllSheetPlano['col_extra_1'] * (int) $resultAllSheetPlano['row_extra_1']);
+
+                    $resultAllSheetPlano['col_extra_2'] = floor($resultAllSheetPlano['planoLength_extra_2'] / $resultAllSheetPlano['sheetWidth']);
+                    $resultAllSheetPlano['row_extra_2'] = floor($resultAllSheetPlano['planoWidth_extra_2'] / $resultAllSheetPlano['sheetLength']);
+                    $resultAllSheetPlano['item_per_plano_extra_2'] = $resultAllSheetPlano['itemsPerSheet'] * ((int) $resultAllSheetPlano['col_extra_2'] * (int) $resultAllSheetPlano['row_extra_2']);
+
+                    $results[] = $resultAllSheetPlano;
+                }
+            }
+        }
+
+        $maxTotalItems = 0;
+        $selectedDataPlano = null;
+        $bestDimensionPlano = [];
+        foreach ($results as $dataPlano) {
+            $totalItems = $dataPlano['itemsPerPlano'] + $dataPlano['item_per_plano_extra_1'] + $dataPlano['item_per_plano_extra_2'];
+
+            if ($totalItems > $maxTotalItems) {
+                $bestDimensionPlano = [
+                    'col' => (int) $dataPlano['col'],
+                    'row' => (int) $dataPlano['row'],
+                    'planoLength' => (float) $dataPlano['planoLength'],
+                    'planoWidth' => (float) $dataPlano['planoWidth'],
+                    'sheetLength' => (float) $dataPlano['sheetLength'],
+                    'sheetWidth' => (float) $dataPlano['sheetWidth'],
+                    'cutSheetLength' => (float) $dataPlano['cutSheetLength'],
+                    'cutSheetWidth' => (float) $dataPlano['cutSheetWidth'],
+                    'totalItems' => (int) $totalItems,
+
+                    'planoLength_extra_1' => (int) $dataPlano['planoLength_extra_1'],
+                    'planoWidth_extra_1' => (int)$dataPlano['planoWidth_extra_1'],
+                    'col_extra_1' => (int) $dataPlano['col_extra_1'],
+                    'row_extra_1' => (int) $dataPlano['row_extra_1'],
+                    'item_per_plano_extra_1' => (int) $dataPlano['item_per_plano_extra_1'],
+
+                    'planoLength_extra_2' => (int) $dataPlano['planoLength_extra_2'],
+                    'planoWidth_extra_2' => (int) $dataPlano['planoWidth_extra_2'],
+                    'col_extra_2' => (int) $dataPlano['col_extra_2'],
+                    'row_extra_2' => (int) $dataPlano['row_extra_2'],
+                    'item_per_plano_extra_2' => (int) $dataPlano['item_per_plano_extra_2'],
+                ];
+            }
+        }
+
+
+        // dd($results);
+        $this->dispatch('createLayoutBahanAutoRotate', $bestDimensionPlano);
+
+        return $results;
+    }
+
+    // private function calculateNumSheetsAutoRotateInPlano($resultAllSheet, $planoLength, $planoWidth, $orientationPlano)
     // {
-    //     $minimumWaste = null;
-    //     $bestDimensionSheet = [];
-
-    //     foreach ($resultSheet as $solution) {
-    //         $waste = $solution['wasteLength'] * $solution['wasteWidth'];
-
-    //         if (($minimumWaste === null || $waste < $minimumWaste) && $solution['orientationSheet'] == $this->orientationSheet) {
-    //             $minimumWaste = $waste;
-    //             $bestDimensionSheet = [
-    //                 'col' => $solution['col'],
-    //                 'row' => $solution['row'],
-    //                 'sheetLength' => $solution['sheetLength'],
-    //                 'sheetWidth' => $solution['sheetWidth'],
-    //                 'wasteLength' => $solution['wasteLength'],
-    //                 'wasteWidth' => $solution['wasteWidth'],
-    //                 'itemsLength' => $solution['itemsLength'],
-    //                 'itemsWidth' => $solution['itemsWidth'],
-    //                 'gapBetweenItems' => $solution['gapBetweenItems'],
-    //                 'sheetMarginTop' => $solution['sheetMarginTop'],
-    //                 'sheetMarginBottom' => $solution['sheetMarginBottom'],
-    //                 'sheetMarginLeft' => $solution['sheetMarginLeft'],
-    //                 'sheetMarginRight' => $solution['sheetMarginRight'],
-    //                 'orientationSheet' => $solution['orientationSheet'],
-    //                 'itemsPerSheet' => $solution['itemsPerSheet'],
-    //             ];
-    //         }
-    //     }
-
-    //     $sheetLength = $bestDimensionSheet['sheetLength'];
-    //     $sheetWidth = $bestDimensionSheet['sheetWidth'];
-
-    //     if ($orientationPlano == 'landscape') {
-    //         [$sheetLength, $sheetWidth] = [$sheetLength, $sheetWidth];
-    //     } elseif ($orientationPlano == 'potrait') {
-    //         [$sheetLength, $sheetWidth] = [$sheetWidth, $sheetLength];
-    //     } else {
-    //         //auto rotation
-    //     }
-
-    //     $this->maxItemsOnPlano = floor(($this->planoLength * $this->planoWidth) / ($this->itemsLength * $this->itemsWidth));
-
-    //     $max_col = floor($this->planoLength / $sheetLength);
-    //     $max_row = floor($this->planoWidth / $sheetWidth);
-
     //     $results = [];
 
-    //     // Initialize row counter
-    //     $row_counter = 0;
+    //     foreach ($resultAllSheet as $data) {
+    //         $sheetLength = $data['sheetLength'];
+    //         $sheetWidth = $data['sheetWidth'];
+    //         $itemsPerSheet = $data['itemsPerSheet'];
 
-    //     // Run the while loop until maximum row is reached
-    //     while ($row_counter < $max_row) {
-    //         // Increment row counter
-    //         $row_counter++;
+    //         if ($orientationPlano == 'landscape') {
+    //             [$sheetLength, $sheetWidth] = [$sheetLength, $sheetWidth];
+    //         } else {
+    //             [$sheetLength, $sheetWidth] = [$sheetWidth, $sheetLength];
+    //         }
 
-    //         // Initialize col counter
-    //         $col_counter = 0;
+    //         $max_col = floor($planoLength / $sheetLength);
+    //         $max_row = floor($planoWidth / $sheetWidth);
 
-    //         // Reset sheetLength and sheetWidth for each new row
-    //         $cutSheetLength = 0;
-    //         $cutSheetWidth = 0;
+    //         // Initialize row counter
+    //         $row_counter = 0;
 
-    //         // Run the while loop until maximum col is reached
-    //         while ($col_counter < $max_col) {
-    //             // Increment col counter
-    //             $col_counter++;
+    //         // Run the while loop until maximum row is reached
+    //         while ($row_counter < $max_row) {
+    //             // Increment row counter
+    //             $row_counter++;
 
-    //             // Increment sheetLength and sheetWidth based on col and row counters
-    //             $cutSheetLength = $sheetLength * $col_counter;
-    //             $cutSheetWidth = $sheetWidth * $row_counter;
+    //             // Initialize col counter
+    //             $col_counter = 0;
 
-    //             if ($sheetLength <= $this->planoLength && $sheetWidth <= $this->planoWidth) {
-    //                 $data = [
-    //                     'col' => $col_counter,
-    //                     'row' => $row_counter,
-    //                     'sheetLength' => $sheetLength,
-    //                     'sheetWidth' => $sheetWidth,
-    //                     'cutSheetLength' => $cutSheetLength,
-    //                     'cutSheetWidth' => $cutSheetWidth,
-    //                     'wasteCutLength' => $this->planoLength - $cutSheetLength,
-    //                     'wasteCutWidth' => $this->planoWidth - $cutSheetWidth,
-    //                     'orientationPlano' => $orientationPlano,
-    //                     'itemsPerPlano' => $bestDimensionSheet['itemsPerSheet'] * ($col_counter * $row_counter),
-    //                 ];
+    //             // Reset sheetLength and sheetWidth for each new row
+    //             $cutSheetLength = 0;
+    //             $cutSheetWidth = 0;
 
-    //                 if ($this->planoLength - $cutSheetLength >= $this->minimalLengthSheet) {
-    //                     $data['wasteLengthPlano_1'] = $this->planoLength - $cutSheetLength;
-    //                     $data['wasteWidthPlano_1'] = $this->planoWidth;
+    //             // Run the while loop until maximum col is reached
+    //             while ($col_counter < $max_col) {
+    //                 // Increment col counter
+    //                 $col_counter++;
 
-    //                     foreach ($resultSheet as $sheet) {
-    //                         if ($sheet['sheetLength'] <= $data['wasteLengthPlano_1'] && $sheet['sheetWidth'] <= $this->planoWidth && $bestDimensionSheet['orientationSheet'] == $this->orientationSheet) {
-    //                             $data['extraLengthSheet_1'] = $sheet['sheetLength'];
-    //                             $data['orientationSheet'] = $sheet['orientationSheet'];
-    //                         } else {
-    //                             $data['extraLengthSheet_1'] = null;
-    //                             $data['orientationSheet'] = null;
-    //                         }
+    //                 // Increment sheetLength and sheetWidth based on col and row counters
+    //                 $cutSheetLength = $sheetLength * $col_counter;
+    //                 $cutSheetWidth = $sheetWidth * $row_counter;
 
-    //                         if ($sheet['sheetWidth'] <= $this->planoLength && $sheet['sheetWidth'] <= $data['wasteWidthPlano_1'] && $bestDimensionSheet['orientationSheet'] == $this->orientationSheet) {
-    //                             $data['extraWidthSheet_1'] = $sheet['sheetWidth'];
-    //                         } else {
-    //                             $data['extraWidthSheet_1'] = null;
-    //                         }
+    //                 if ($cutSheetLength <= $planoLength && $cutSheetWidth <= $planoWidth) {
+    //                     $dataPlano = [
+    //                         'colSheet' => (int) $data['col'],
+    //                         'rowSheet' => (int) $data['row'],
+    //                         'col' => (int) $col_counter,
+    //                         'row' => (int) $row_counter,
+    //                         'planoLength' => (float) $planoLength,
+    //                         'planoWidth' => (float) $planoWidth,
+    //                         'sheetLength' => (float) $data['sheetLength'],
+    //                         'sheetWidth' => (float) $data['sheetWidth'],
+    //                         'cutSheetLength' => (float) $cutSheetLength,
+    //                         'cutSheetWidth' => (float) $cutSheetWidth,
+    //                         'wasteCutLength' => (float) $planoLength - $cutSheetLength,
+    //                         'wasteCutWidth' => (float) $planoWidth - $cutSheetWidth,
+    //                         'orientationSheet' => $data['orientationSheet'],
+    //                         'orientationPlano' => $orientationPlano,
+    //                         'itemsPerSheet' => (int) $data['itemsPerSheet'],
+    //                         'itemsPerPlano' => (int) $data['itemsPerSheet'] * ((int) $col_counter * (int) $row_counter),
+    //                     ];
+
+    //                     // Inisialisasi nilai tambahan dengan null
+    //                     $dataPlano['planoLength_extra_1'] = null;
+    //                     $dataPlano['planoWidth_extra_1'] = null;
+    //                     $dataPlano['planoLength_extra_2'] = null;
+    //                     $dataPlano['planoWidth_extra_2'] = null;
+
+    //                     // Logika penentuan nilai tambahan
+    //                     if ($dataPlano['wasteCutLength'] >= $dataPlano['sheetWidth'] || $dataPlano['sheetLength'] >= $this->minimalLengthSheet) {
+    //                         $dataPlano['planoLength_extra_1'] = $dataPlano['wasteCutLength'];
+    //                         $dataPlano['planoWidth_extra_1'] = $dataPlano['planoWidth'];
+
+    //                         $dataPlano['planoLength_extra_2'] = $dataPlano['cutSheetLength'];
+    //                         $dataPlano['planoWidth_extra_2'] = $dataPlano['wasteCutWidth'];
+    //                     } elseif ($dataPlano['wasteCutWidth'] >= $dataPlano['sheetLength'] || $dataPlano['sheetWidth'] >= $this->minimalWidthSheet) {
+    //                         $dataPlano['planoLength_extra_1'] = $dataPlano['wasteCutLength'];
+    //                         $dataPlano['planoWidth_extra_1'] = $dataPlano['cutSheetWidth'];
+
+    //                         $dataPlano['planoLength_extra_2'] = $dataPlano['planoLength'];
+    //                         $dataPlano['planoWidth_extra_2'] = $dataPlano['wasteCutWidth'];
     //                     }
-    //                 } else {
-    //                     $data['wasteLengthPlano_1'] = null;
-    //                     $data['wasteWidthPlano_1'] = null;
-    //                 }
 
-    //                 if ($this->planoWidth - $cutSheetWidth >= $this->minimalWidthSheet) {
-    //                     $data['wasteLengthPlano_2'] = $this->planoLength - $data['wasteLengthPlano_1'];
-    //                     $data['wasteWidthPlano_2'] = $this->planoWidth - $cutSheetWidth;
-    //                 } else {
-    //                     $data['wasteLengthPlano_2'] = null;
-    //                     $data['wasteWidthPlano_2'] = null;
-    //                 }
+    //                     $dataPlano['col_extra_1'] = floor($dataPlano['planoLength_extra_1'] / $dataPlano['sheetWidth']);
+    //                     $dataPlano['row_extra_1'] = floor($dataPlano['planoWidth_extra_1'] / $dataPlano['sheetLength']);
+    //                     $dataPlano['item_per_plano_extra_1'] = $dataPlano['itemsPerSheet'] * ((int) $dataPlano['col_extra_1'] * (int) $dataPlano['row_extra_1']);
 
-    //                 $results[] = $data;
+    //                     $dataPlano['col_extra_2'] = floor($dataPlano['planoLength_extra_2'] / $dataPlano['sheetLength']);
+    //                     $dataPlano['row_extra_2'] = floor($dataPlano['planoWidth_extra_2'] / $dataPlano['sheetWidth']);
+    //                     $dataPlano['item_per_plano_extra_2'] = $dataPlano['itemsPerSheet'] * ((int) $dataPlano['col_extra_2'] * (int) $dataPlano['row_extra_2']);
+
+    //                     $results[] = $dataPlano;
+    //                 }
     //             }
     //         }
     //     }
 
     //     return $results;
     // }
+
+    // if ($dataPlano['wasteCutLength'] >= $this->minimalLengthSheet && $dataPlano['wasteCutWidth'] >= $this->minimalWidthSheet) {
+    //     if ($dataPlano['wasteCutLength'] > $dataPlano['wasteCutWidth']) {
+    //         $dataPlano['planoLength_extra_1'] = $dataPlano['wasteCutLength'];
+    //         $dataPlano['planoWidth_extra_1'] = $planoWidth;
+
+    //         foreach ($resultAllSheet as $sheetExtra) {
+    //             if ($sheetExtra['sheetLength'] <= $dataPlano['planoLength_extra_1'] && $sheetExtra['sheetWidth'] <= $dataPlano['planoWidth_extra_1']) {
+    //                 $sheetLengthExtra = $data['sheetLength'];
+    //                 $sheetWidthExtra = $data['sheetWidth'];
+
+    //                 [$sheetLengthExtra, $sheetWidthExtra] = [$sheetWidthExtra, $sheetLengthExtra];
+
+    //                 $dataPlano['planoLength_extra_1_sheetLength'] = $sheetLengthExtra;
+    //                 $dataPlano['planoLength_extra_1_sheetWidth'] = $sheetWidthExtra;
+
+    //                 $max_col_extra = floor($dataPlano['planoLength_extra_1'] / $sheetLengthExtra);
+    //                 $max_row_extra = floor($dataPlano['planoWidth_extra_1'] / $sheetWidthExtra);
+
+    //                 // Initialize row counter
+    //                 $row_counter_extra = 0;
+
+    //                 // Run the while loop until maximum row is reached
+    //                 while ($row_counter_extra < $max_row_extra) {
+    //                     // Increment row counter
+    //                     $row_counter_extra++;
+
+    //                     // Initialize col counter
+    //                     $col_counter_extra = 0;
+
+    //                     // Reset sheetLength and sheetWidth for each new row
+    //                     $cutSheetLength = 0;
+    //                     $cutSheetWidth = 0;
+
+    //                     // Run the while loop until maximum col is reached
+    //                     while ($col_counter_extra < $max_col_extra) {
+    //                         // Increment col counter
+    //                         $col_counter_extra++;
+
+    //                         // Increment sheetLength and sheetWidth based on col and row counters
+    //                         $cutSheetLength = $sheetLength * $col_counter_extra;
+    //                         $cutSheetWidth = $sheetWidth * $row_counter_extra;
+
+    //                         $dataPlano['planoLength_extra_1_col'] = (int) $col_counter_extra;
+    //                         $dataPlano['planoLength_extra_1_row'] = (int) $row_counter_extra;
+    //                         $dataPlano['planoLength_extra_1_itemPerSheet'] =(int) $itemsPerSheet * ((int) $col_counter_extra * (int) $row_counter_extra);
+    //                     }
+    //                 }
+
+    //             } else {
+    //                 $dataPlano['planoLength_extra_1_sheetLength'] = null;
+    //                 $dataPlano['planoLength_extra_1_sheetWidth'] = null;
+    //                 $dataPlano['planoLength_extra_1_sheetLength'] = null;
+    //                 $dataPlano['planoLength_extra_1_sheetWidth'] = null;
+    //                 $dataPlano['planoLength_extra_1_col'] = null;
+    //                 $dataPlano['planoLength_extra_1_row'] = null;
+    //                 $dataPlano['planoLength_extra_1_itemPerSheet'] = null;
+    //             }
+    //         }
+    //     } else {
+    //         $dataPlano['planoLength_extra_1'] = null;
+    //         $dataPlano['planoWidth_extra_1'] = null;
+
+    //         $dataPlano['planoLength_extra_2'] = $planoLength - $dataPlano['planoLength_extra_1'];
+    //         $dataPlano['planoWidth_extra_2'] = $dataPlano['wasteCutWidth'];
+    //     }
+    // }else{
+    //     $dataPlano['planoLength_extra_1'] = null;
+    //     $dataPlano['planoWidth_extra_1'] = null;
+    //     $dataPlano['planoLength_extra_1_sheetLength'] = null;
+    //     $dataPlano['planoLength_extra_1_sheetWidth'] = null;
+    //     $dataPlano['planoLength_extra_1_sheetLength'] = null;
+    //     $dataPlano['planoLength_extra_1_sheetWidth'] = null;
+    //     $dataPlano['planoLength_extra_1_col'] = null;
+    //     $dataPlano['planoLength_extra_1_row'] = null;
+    //     $dataPlano['planoLength_extra_1_itemPerSheet'] = null;
+
+    //     $dataPlano['planoLength_extra_2'] = null;
+    //     $dataPlano['planoWidth_extra_2'] = null;
+    //     $dataPlano['planoLength_extra_2_sheetLength'] = null;
+    //     $dataPlano['planoLength_extra_2_sheetWidth'] = null;
+    //     $dataPlano['planoLength_extra_2_sheetLength'] = null;
+    //     $dataPlano['planoLength_extra_2_sheetWidth'] = null;
+    //     $dataPlano['planoLength_extra_2_col'] = null;
+    //     $dataPlano['planoLength_extra_2_row'] = null;
+    //     $dataPlano['planoLength_extra_2_itemPerSheet'] = null;
+    // }
+
     #[Renderless]
     public function calc()
     {
-        if ($this->orientationSheet == 'potrait' || $this->orientationSheet == 'landscape') {
-            $resultSheet = $this->calculateSheetDimensions($this->itemsLength, $this->itemsWidth, $this->gapBetweenItems, $this->minimalLengthSheet, $this->minimalWidthSheet, $this->maximalLengthSheet, $this->maximalWidthSheet, $this->sheetMarginTop, $this->sheetMarginBottom, $this->sheetMarginLeft, $this->sheetMarginRight, $this->orientationSheet);
-            if ($this->orientationPlano == 'potrait' || $this->orientationPlano == 'landscape') {
-              $resultPlano = $this->calculateNumSheetsInPlano($resultSheet['sheetLength'], $resultSheet['sheetWidth'], $resultSheet['itemsPerSheet'], $this->planoLength, $this->planoWidth, $this->orientationPlano);
-            }else{
-              $resultPlano = $this->calculateNumSheetsInPlano($resultSheet['sheetLength'], $resultSheet['sheetWidth'], $resultSheet['itemsPerSheet'], $this->planoLength, $this->planoWidth, $this->orientationPlano);
+        if ($this->orientationSheet == 'landscape') {
+            $resultSheetLandscape = $this->calculateSheetDimensions($this->itemsLength, $this->itemsWidth, $this->gapBetweenItems, $this->minimalLengthSheet, $this->minimalWidthSheet, $this->maximalLengthSheet, $this->maximalWidthSheet, $this->sheetMarginTop, $this->sheetMarginBottom, $this->sheetMarginLeft, $this->sheetMarginRight, $this->orientationSheet);
+
+            if ($this->orientationPlano == 'landscape') {
+                $resultPlanoLandscape = $this->calculateNumSheetsInPlano($resultSheetLandscape['sheetLength'], $resultSheetLandscape['sheetWidth'], $resultSheetLandscape['itemsPerSheet'], $this->planoLength, $this->planoWidth, $this->orientationPlano);
+            } elseif ($this->orientationPlano == 'potrait') {
+                $resultPlanoPotrait = $this->calculateNumSheetsInPlano($resultSheetLandscape['sheetLength'], $resultSheetLandscape['sheetWidth'], $resultSheetLandscape['itemsPerSheet'], $this->planoLength, $this->planoWidth, $this->orientationPlano);
+            } else {
+                $resultAllSheetLandscape = $this->calculateSheetDimensions($this->itemsLength, $this->itemsWidth, $this->gapBetweenItems, $this->minimalLengthSheet, $this->minimalWidthSheet, $this->maximalLengthSheet, $this->maximalWidthSheet, $this->sheetMarginTop, $this->sheetMarginBottom, $this->sheetMarginLeft, $this->sheetMarginRight, $this->orientationSheet);
+
+                $resultAllPlanoLandscape = $this->calculateNumSheetsAutoRotateInPlano($resultAllSheetLandscape, $this->planoLength, $this->planoWidth, 'landscape');
+
+                // $maxTotalItems = 0;
+                // $selectedDataPlano = null;
+                // $bestDimensionPlano = [];
+                // foreach ($resultAllPlanoLandscape as $dataPlano) {
+                //     $totalItems = $dataPlano['itemsPerPlano'] + $dataPlano['item_per_plano_extra_1'] + $dataPlano['item_per_plano_extra_2'];
+
+                //     if ($totalItems > $maxTotalItems) {
+                //         $bestDimensionPlano = [
+                //             'col' => (int) $dataPlano['col'],
+                //             'row' => (int) $dataPlano['row'],
+                //             'planoLength' => (float) $dataPlano['planoLength'],
+                //             'planoWidth' => (float) $dataPlano['planoWidth'],
+                //             'sheetLength' => (float) $dataPlano['sheetLength'],
+                //             'sheetWidth' => (float) $dataPlano['sheetWidth'],
+                //             'cutSheetLength' => (float) $dataPlano['cutSheetLength'],
+                //             'cutSheetWidth' => (float) $dataPlano['cutSheetWidth'],
+                //             'totalItems' => (int) $totalItems,
+
+                //             'planoLength_extra_1' => $dataPlano['planoLength_extra_1'],
+                //             'planoWidth_extra_1' => $dataPlano['planoWidth_extra_1'],
+                //             'col_extra_1' => $dataPlano['col_extra_1'],
+                //             'row_extra_1' => $dataPlano['row_extra_1'],
+                //             'item_per_plano_extra_1' => $dataPlano['item_per_plano_extra_1'],
+
+                //             'planoLength_extra_2' => $dataPlano['planoLength_extra_2'],
+                //             'planoWidth_extra_2' => $dataPlano['planoWidth_extra_2'],
+                //             'col_extra_2' => $dataPlano['col_extra_2'],
+                //             'row_extra_2' => $dataPlano['row_extra_2'],
+                //             'item_per_plano_extra_2' => $dataPlano['item_per_plano_extra_2'],
+                //         ];
+                //     }
+                // }
+
+                // $this->dispatch('createLayoutBahanAutoRotate', $bestDimensionPlano);
             }
+        } elseif ($this->orientationSheet == 'potrait') {
+            $resultSheetPotrait = $this->calculateSheetDimensions($this->itemsLength, $this->itemsWidth, $this->gapBetweenItems, $this->minimalLengthSheet, $this->minimalWidthSheet, $this->maximalLengthSheet, $this->maximalWidthSheet, $this->sheetMarginTop, $this->sheetMarginBottom, $this->sheetMarginLeft, $this->sheetMarginRight, $this->orientationSheet);
 
-          } else {
-            $resultSheet = $this->calculateSheetDimensions($this->itemsLength, $this->itemsWidth, $this->gapBetweenItems, $this->minimalLengthSheet, $this->minimalWidthSheet, $this->maximalLengthSheet, $this->maximalWidthSheet, $this->sheetMarginTop, $this->sheetMarginBottom, $this->sheetMarginLeft, $this->sheetMarginRight, $this->orientationSheet);
+            if ($this->orientationPlano == 'landscape') {
+                $resultPlanoLandscape = $this->calculateNumSheetsInPlano($resultSheetPotrait['sheetLength'], $resultSheetPotrait['sheetWidth'], $resultSheetPotrait['itemsPerSheet'], $this->planoLength, $this->planoWidth, $this->orientationPlano);
+            } elseif ($this->orientationPlano == 'potrait') {
+                $resultPlanoPotrait = $this->calculateNumSheetsInPlano($resultSheetPotrait['sheetLength'], $resultSheetPotrait['sheetWidth'], $resultSheetPotrait['itemsPerSheet'], $this->planoLength, $this->planoWidth, $this->orientationPlano);
+            } else {
+                $resultAllSheetPotrait = $this->calculateSheetDimensions($this->itemsLength, $this->itemsWidth, $this->gapBetweenItems, $this->minimalLengthSheet, $this->minimalWidthSheet, $this->maximalLengthSheet, $this->maximalWidthSheet, $this->sheetMarginTop, $this->sheetMarginBottom, $this->sheetMarginLeft, $this->sheetMarginRight, $this->orientationSheet);
+                $resultAllPlanoPotrait = $this->calculateNumSheetsAutoRotateInPlano($resultAllSheetPotrait, $this->planoLength, $this->planoWidth, 'potrait');
+            }
+        } else {
         }
-        // $this->skipRender();
-
-        // $allResultSheet = array_merge($resultSheetPotrait, $resultSheetLandscape);
-        // $this->resultSheet = $allResultSheet;
-
-        // $resultPlanoPotrait = $this->calculateNumSheetsInPlano($allResultSheet, 'potrait');
-        // $resultPlanoLandscape = $this->calculateNumSheetsInPlano($allResultSheet, 'landscape');
-        // $allResultPlano = array_merge($resultPlanoPotrait, $resultPlanoLandscape);
-        // $this->resultPlano = $allResultPlano;
-        // dd($allResultSheet);
     }
     public function render()
     {

@@ -16,6 +16,7 @@
             <option label="Pilih Orientasi"></option>
             <option value="landscape">Landscape</option>
             <option value="potrait">Potrait</option>
+            <option value="auto rotate">Auto Rotate</option>
         </select>
     </p>
     <p>
@@ -24,6 +25,7 @@
             <option label="Pilih Orientasi"></option>
             <option value="landscape">Landscape</option>
             <option value="potrait">Potrait</option>
+            <option value="auto rotate">Auto Rotate</option>
         </select>
     </p>
     <button wire:click='calc'>Hitung</button>
@@ -374,6 +376,247 @@
                         canvas.add(textWidth);
                     }
                 }
+                resizeCanvas();
+            });
+
+            Livewire.on('createLayoutBahanAutoRotate', (data) => {
+                let col = data[0].col;
+                let row = data[0].row;
+                let planoLength = data[0].planoLength;
+                let planoWidth = data[0].planoWidth;
+                let sheetLength = data[0].sheetLength;
+                let sheetWidth = data[0].sheetWidth;
+                let cutSheetLength = data[0].cutSheetLength;
+                let cutSheetWidth = data[0].cutSheetWidth;
+                let totalItems = data[0].totalItems;
+                let planoLength_extra_1 = data[0].planoLength_extra_1;
+                let planoWidth_extra_1 = data[0].planoWidth_extra_1;
+                let col_extra_1 = data[0].col_extra_1;
+                let row_extra_1 = data[0].row_extra_1;
+                let item_per_plano_extra_1 = data[0].item_per_plano_extra_1;
+                let planoLength_extra_2 = data[0].planoLength_extra_2;
+                let planoWidth_extra_2 = data[0].planoWidth_extra_2;
+                let col_extra_2 = data[0].col_extra_2;
+                let row_extra_2 = data[0].row_extra_2;
+                let item_per_plano_extra_2 = data[0].item_per_plano_extra_2;
+
+                console.log(data);
+
+                function resizeCanvas() {
+                    const outerCanvasContainer = $('.fabric-canvas-wrapper-bahan')[0];
+                    console.log(outerCanvasContainer);
+                    const ratio = canvas.getWidth() / canvas.getHeight();
+                    const containerWidth = outerCanvasContainer.clientWidth;
+                    const containerHeight = outerCanvasContainer.clientHeight;
+
+                    const scale = containerWidth / canvas.getWidth();
+                    const zoom = canvas.getZoom() * scale;
+                    canvas.setDimensions({
+                        width: containerWidth,
+                        height: containerWidth / ratio
+                    });
+                    canvas.setViewportTransform([zoom, 0, 0, zoom, 0, 0]);
+                }
+
+                $(window).resize(resizeCanvas);
+
+                var canvas = new fabric.Canvas('canvasBahan');
+                let canvasWidth = planoLength + 2.5;
+                let canvasHeight = planoWidth + 2.5;
+
+                canvas.setWidth(canvasWidth);
+                canvas.setHeight(canvasHeight);
+
+                // Buat objek persegi panjang sesuai dengan data yang diterima
+                var rectangle = new fabric.Rect({
+                    top: 2,
+                    left: 0,
+                    width: planoLength,
+                    height: planoWidth,
+                    fill: 'transparent',
+                    stroke: 'red',
+                    strokeWidth: 0.1,
+                    strokeUniform: true
+                });
+
+                canvas.add(rectangle);
+
+                var textPlanoLength = new fabric.IText('Panjang Bahan = ' + (planoLength) + ' cm', {
+                    fontFamily: 'Arial',
+                    fontSize: 1,
+                    left: 0, // Posisi horizontal di tengah
+                    top: -0.2, // Posisi vertikal di tengah
+                });
+
+                canvas.add(textPlanoLength);
+
+                var textPlanoWidth = new fabric.IText('Lebar Bahan = ' + (planoWidth) + ' cm', {
+                    fontFamily: 'Arial',
+                    fontSize: 1,
+                    left: planoLength + 2, // Posisi horizontal di tengah
+                    top: 0.2, // Posisi vertikal di tengah
+                    angle: 90,
+                });
+
+                canvas.add(textPlanoWidth);
+
+                // Loop untuk baris
+                for (let i = 0; i < row; i++) {
+                    // Loop untuk kolom
+                    for (let j = 0; j < col; j++) {
+                        // Hitung posisi kiri dan atas untuk setiap persegi panjang
+                        var leftPos = j * sheetLength;
+                        var topPos = i * sheetWidth + 2;
+
+                        // Buat objek persegi panjang
+                        var rectangle = new fabric.Rect({
+                            top: topPos,
+                            left: leftPos,
+                            width: sheetLength,
+                            height: sheetWidth,
+                            fill: 'transparent',
+                            stroke: 'red',
+                            strokeWidth: 0.1,
+                            strokeUniform: true
+                        });
+
+                        // Tambahkan objek persegi panjang ke dalam canvas
+                        canvas.add(rectangle);
+
+                        // Hitung posisi teks untuk menempatkannya di tengah kotak
+                        var textLeftPos = leftPos + sheetLength / 2;
+                        var textTopPos = topPos + sheetWidth / 2;
+
+                        // Tambahkan teks panjang ke dalam canvas
+                        var textLength = new fabric.IText(sheetLength + ' cm', {
+                            fontFamily: 'Arial',
+                            fontSize: 1,
+                            left: leftPos,
+                            top: topPos,
+                            textAlign: 'center',
+                        });
+
+                        canvas.add(textLength);
+
+                        // Tambahkan teks lebar ke dalam canvas
+                        var textWidth = new fabric.IText(sheetWidth + ' cm', {
+                            fontFamily: 'Arial',
+                            fontSize: 1,
+                            left: leftPos,
+                            top: topPos + sheetWidth,
+                            angle: -90,
+                            textAlign: 'center',
+                        });
+
+                        canvas.add(textWidth);
+                    }
+                }
+
+                // Loop untuk extra 1
+                for (let i = 0; i < row_extra_1; i++) {
+                    // Loop untuk kolom
+                    for (let j = 0; j < col_extra_1; j++) {
+                        // Hitung posisi kiri dan atas untuk setiap persegi panjang
+                        var leftPos = (j * sheetWidth) + cutSheetLength;
+                        var topPos = i * sheetLength + 2;
+
+                        // Buat objek persegi panjang
+                        var rectangle = new fabric.Rect({
+                            top: topPos,
+                            left: leftPos,
+                            width: sheetWidth,
+                            height: sheetLength,
+                            fill: 'transparent',
+                            stroke: 'red',
+                            strokeWidth: 0.1,
+                            strokeUniform: true
+                        });
+
+                        // Tambahkan objek persegi panjang ke dalam canvas
+                        canvas.add(rectangle);
+
+                        // Hitung posisi teks untuk menempatkannya di tengah kotak
+                        var textLeftPos = leftPos + sheetWidth / 2;
+                        var textTopPos = topPos + sheetLength / 2;
+
+                        // Tambahkan teks panjang ke dalam canvas
+                        var textLength = new fabric.IText(sheetWidth + ' cm', {
+                            fontFamily: 'Arial',
+                            fontSize: 1,
+                            left: leftPos,
+                            top: topPos,
+                            textAlign: 'center',
+                        });
+
+                        canvas.add(textLength);
+
+                        // Tambahkan teks lebar ke dalam canvas
+                        var textWidth = new fabric.IText(sheetLength + ' cm', {
+                            fontFamily: 'Arial',
+                            fontSize: 1,
+                            left: leftPos,
+                            top: topPos + sheetLength,
+                            angle: -90,
+                            textAlign: 'center',
+                        });
+
+                        canvas.add(textWidth);
+                    }
+                }
+
+                // Loop untuk baris
+                for (let i = 0; i < row_extra_2; i++) {
+                    // Loop untuk kolom
+                    for (let j = 0; j < col_extra_2; j++) {
+                        // Hitung posisi kiri dan atas untuk setiap persegi panjang
+                        var leftPos = j * sheetWidth;
+                        var topPos = cutSheetWidth + (i * sheetLength + 2);
+
+                        // Buat objek persegi panjang
+                        var rectangle = new fabric.Rect({
+                            top: topPos,
+                            left: leftPos,
+                            width: sheetWidth,
+                            height: sheetLength,
+                            fill: 'transparent',
+                            stroke: 'red',
+                            strokeWidth: 0.1,
+                            strokeUniform: true
+                        });
+
+                        // Tambahkan objek persegi panjang ke dalam canvas
+                        canvas.add(rectangle);
+
+                        // Hitung posisi teks untuk menempatkannya di tengah kotak
+                        var textLeftPos = leftPos + sheetWidth / 2;
+                        var textTopPos = topPos + sheetLength / 2;
+
+                        // Tambahkan teks panjang ke dalam canvas
+                        var textLength = new fabric.IText(sheetWidth + ' cm', {
+                            fontFamily: 'Arial',
+                            fontSize: 1,
+                            left: leftPos,
+                            top: topPos,
+                            textAlign: 'center',
+                        });
+
+                        canvas.add(textLength);
+
+                        // Tambahkan teks lebar ke dalam canvas
+                        var textWidth = new fabric.IText(sheetLength + ' cm', {
+                            fontFamily: 'Arial',
+                            fontSize: 1,
+                            left: leftPos,
+                            top: topPos + sheetLength,
+                            angle: -90,
+                            textAlign: 'center',
+                        });
+
+                        canvas.add(textWidth);
+                    }
+                }
+
+
                 resizeCanvas();
             });
         });
