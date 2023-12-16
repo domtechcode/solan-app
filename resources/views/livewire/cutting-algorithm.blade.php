@@ -109,7 +109,7 @@
     </p> --}}
 
     <p>Gambar Setting</p>
-    <div class="fabric-canvas-wrapper-setting" style="border: solid 1px red;">
+    <div class="fabric-canvas-wrapper-setting" style="border: solid 1px red;" wire:ignore>
         <canvas id="canvasSetting"></canvas>
     </div>
     <p>Gambar Bahan</p>
@@ -155,6 +155,7 @@
                 $(window).resize(resizeCanvas);
 
                 var canvas = new fabric.Canvas('canvasSetting');
+                canvas.clear();
                 let canvasWidth = sheetLength + 2;
                 let canvasHeight = sheetWidth + 2;
 
@@ -286,6 +287,7 @@
                 $(window).resize(resizeCanvas);
 
                 var canvas = new fabric.Canvas('canvasBahan');
+                canvas.clear();
                 let canvasWidth = planoLength + 2.5;
                 let canvasHeight = planoWidth + 2.5;
 
@@ -421,6 +423,7 @@
                 $(window).resize(resizeCanvas);
 
                 var canvas = new fabric.Canvas('canvasBahan');
+                canvas.clear();
                 let canvasWidth = planoLength + 2.5;
                 let canvasHeight = planoWidth + 2.5;
 
@@ -615,7 +618,6 @@
                         canvas.add(textWidth);
                     }
                 }
-
 
                 resizeCanvas();
             });
