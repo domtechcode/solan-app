@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Database\Seeders\LinksTableSeeder;
 use Database\Seeders\TasksTableSeeder;
+use Database\Seeders\UsersTableSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -22,6 +23,7 @@ class DatabaseSeeder extends Seeder
     //     'email' => 'test@example.com',
     // ]);
 
+    $this->call(UsersTableSeeder::class);
     $this->call(TasksTableSeeder::class);
     $this->call(LinksTableSeeder::class);
   }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\CuttingAlgorithm;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GanttController;
 use App\Livewire\Penjadwalan\Components\TimelineSchedule;
@@ -31,4 +32,5 @@ Route::get('/auth/register-basic', $controller_path . '\authentications\Register
 );
 
 Route::get('/timeline-schedule', TimelineSchedule::class)->name('timelineSchedule');
+Route::get('/paper', CuttingAlgorithm::class)->name('cuttingAlgorithm');
 // Route::get('/data', [GanttController::class, 'get']);

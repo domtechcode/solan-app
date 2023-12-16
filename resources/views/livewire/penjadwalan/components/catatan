@@ -1,0 +1,776 @@
+@push('styles')
+<style>
+  .task .gantt_add {
+    display: none !important;
+  }
+
+  .gantt_grid_head_cell.gantt_grid_head_add[data-column-index='0'] {
+    width: 44px;
+    visibility: hidden !important;
+  }
+
+  .owner-label {
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    font-size: 12px;
+    display: inline-block;
+    border: 1px solid #cccccc;
+    border-radius: 25px;
+    background: #e6e6e6;
+    color: #6f6f6f;
+    margin: 0 3px;
+    font-weight: bold;
+  }
+
+  .gantt_cal_larea {
+    overflow: visible;
+  }
+
+  .gantt_cal_chosen,
+  .gantt_cal_chosen select {
+    width: 400px;
+  }
+
+  .filters_wrapper {
+    font: 600 14px Roboto;
+  }
+
+  .filters_wrapper span {
+    font-weight: bold;
+    padding-right: 5px;
+    color: rgba(0, 0, 0, 0.7);
+  }
+
+  .filters_wrapper label {
+    padding-right: 3px;
+  }
+
+  .red .gantt_cell,
+  .odd.red .gantt_cell,
+  .red .gantt_task_cell,
+  .odd.red .gantt_task_cell {
+    background-color: #fde0e0;
+  }
+
+  .green .gantt_cell,
+  .odd.green .gantt_cell,
+  .green .gantt_task_cell,
+  .odd.green .gantt_task_cell {
+    background-color: #bee4be;
+  }
+
+  //filter priority
+  .gantt_control {
+    background: #ededed;
+    text-align: center;
+  }
+
+  .gantt_control input[type='button'],
+  .gantt_control input[type='file'],
+  .gantt_control input[type='checkbox'],
+  .gantt_control button {
+    font: 500 14px Roboto;
+    border: 1px solid #d9d9d9;
+    border-radius: 2px;
+    background: #fff;
+    padding: 4px 12px;
+    margin: 0 5px;
+    color: rgba(0, 0, 0, 0.7);
+    line-height: 20px;
+  }
+
+  .gantt_control input[type='button']:hover,
+  .gantt_control button:hover {
+    border: 1px solid #b3b3b3;
+    color: rgba(0, 0, 0, 0.8);
+    cursor: pointer;
+  }
+
+  .gantt_control input[type='button']:active,
+  .gantt_control button:active {
+    background: #f7f7f7;
+  }
+
+  .gantt_control input[type='button']:focus,
+  .gantt_control button:focus {
+    outline: none !important;
+  }
+
+  .gantt_control {
+    padding: 10px 0 12px;
+  }
+
+  .gantt_control input[type='radio'],
+  .gantt_control input[type='checkbox'] {
+    display: none;
+  }
+
+  .gantt_control label {
+    padding: 0 6px;
+    color: rgba(0, 0, 0, 0.54);
+    font: 14px Roboto;
+    line-height: 20px;
+    letter-spacing: 0.2px;
+  }
+
+  .material-icons {
+    position: relative;
+    top: 6px;
+    right: 2px;
+    color: rgba(0, 0, 0, 0.54);
+  }
+
+  .material-icons.icon_color {
+    color: #0288d1;
+  }
+
+  .material-icons.md-inactive {
+    color: rgba(0, 0, 0, 0.38);
+  }
+
+  .checked_label {
+    color: rgba(0, 0, 0, 0.7) !important;
+  }
+
+  .gantt_radio:checked,
+  .gantt_radio:not(:checked) {
+    position: absolute;
+    left: -9999px;
+  }
+
+  .gantt_radio:checked + label,
+  .gantt_radio:not(:checked) + label {
+    position: relative;
+    padding-left: 28px;
+    cursor: pointer;
+    line-height: 20px;
+    display: inline-block;
+    color: #666;
+  }
+
+  .gantt_radio:checked + label:before,
+  .gantt_radio:not(:checked) + label:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 18px;
+    height: 18px;
+    border: 1px solid #ddd;
+    border-radius: 100%;
+    background: #fff;
+  }
+
+  .gantt_radio:checked + label:after,
+  .gantt_radio:not(:checked) + label:after {
+    content: '';
+    width: 12px;
+    height: 12px;
+    background: #8a9ada;
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    border-radius: 100%;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+  }
+
+  .gantt_radio:not(:checked) + label:after {
+    opacity: 0;
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  }
+
+  .gantt_radio:checked + label:after {
+    opacity: 1;
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+
+  #search {
+    width: 130px;
+    margin-left: 25px;
+    padding: 3px 5px 1px;
+    font-size: 12px;
+  }
+
+  .searchEl:after {
+    display: block;
+    content: '';
+    background: url(https://d2zjg0qo565n2.cloudfront.net/sites/default/files/2016-rebrand/header-icons/Homepage_Search_Icon.png)
+      no-repeat;
+    height: 20px;
+    margin-top: -28px;
+    margin-left: 74px;
+  }
+</style>
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js?v=8.0.6"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"
+></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.js?v=8.0.6"></script>
+
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.css?v=8.0.6" />
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+@endpush
+<div>
+  <div class="gantt_control">
+    <div class="filters_wrapper" id="filters_wrapper">
+      <span>Display tasks with priority:</span>
+
+      <label class="checked_label" id="scale1">
+        <input type="checkbox" name="1" value="1" checked />
+        <i class="material-icons icon_color">check_box</i>
+        Normal
+      </label>
+
+      <label id="scale2">
+        <input type="checkbox" name="2" value="1" checked />
+        <i class="material-icons icon_color">check_box</i>
+        Medium
+      </label>
+
+      <label id="scale3">
+        <input type="checkbox" name="3" value="1" checked />
+        <i class="material-icons icon_color">check_box</i>
+        High
+      </label>
+    </div>
+  </div>
+  <div id="gantt_here" style="width: 100%; height: 100vh"></div>
+</div>
+
+@push('scripts')
+<script>
+  gantt.config.date_format = '%Y-%m-%d %H:%i:%s';
+  gantt.plugins({
+    marker: true
+  });
+  var markers = gantt.addMarker({
+    start_date: new Date(),
+    css: 'today',
+    text: 'Hari ini'
+  });
+
+  setInterval(function () {
+    var today = gantt.getMarker(markers);
+    today.start_date = new Date();
+    gantt.updateMarker(markers);
+  }, 1000 * 60);
+
+  //user
+  gantt.form_blocks['ownerselect'] = {
+    render: function (sns) {
+      var height = (sns.height || '23') + 'px';
+      var html =
+        "<div class='gantt_cal_ltext gantt_cal_chosen gantt_cal_multiselect' style='height:" +
+        height +
+        ";'><select data-placeholder='...' class='chosen-select'>";
+      if (sns.options) {
+        for (var i = 0; i < sns.options.length; i++) {
+          if (sns.unassigned_value !== undefined && sns.options[i].key == sns.unassigned_value) {
+            continue;
+          }
+          html += "<option value='" + sns.options[i].key + "'>" + sns.options[i].label + '</option>';
+        }
+      }
+      html += '</select></div>';
+      return html;
+    },
+
+    set_value: function (node, value, ev, sns) {
+      node.style.overflow = 'visible';
+      node.parentNode.style.overflow = 'visible';
+      node.style.display = 'inline-block';
+      var select = $(node.firstChild);
+
+      if (value) {
+        value = (value + '').split(',');
+        select.val(value);
+      } else {
+        select.val([]);
+      }
+
+      select.chosen();
+      if (sns.onchange) {
+        select.change(function () {
+          sns.onchange.call(this);
+        });
+      }
+      select.trigger('chosen:updated');
+      select.trigger('change');
+    },
+
+    get_value: function (node, ev) {
+      var value = $(node.firstChild).val();
+      return value;
+    },
+
+    focus: function (node) {
+      $(node.firstChild).focus();
+    }
+  };
+
+  function findUser(id) {
+    var list = gantt.serverList('people');
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].key == id) {
+        return list[i];
+      }
+    }
+    return null;
+  }
+
+  gantt.config.work_time = true;
+  gantt.config.duration_unit = 'hour';
+  gantt.config.duration_step = 1;
+  gantt.config.autofit = true;
+  gantt.config.order_branch = true;
+  gantt.config.scales = [
+    {
+      unit: 'day',
+      format: '%d %F %Y'
+    },
+    {
+      unit: 'hour',
+      step: 1,
+      format: '%H:%i'
+    }
+  ];
+
+  gantt.setWorkTime({
+    hours: [8, 12, 13, 20]
+  });
+
+  //limit drag
+  gantt.templates.task_class = function (st, end, item) {
+    return gantt.getChildren(item.id).length ? 'gantt_project' : '';
+  };
+
+  function limitMoveLeft(task, limit) {
+    var dur = task.end_date - task.start_date;
+    task.end_date = new Date(limit.end_date);
+    task.start_date = new Date(+task.end_date - dur);
+  }
+
+  function limitMoveRight(task, limit) {
+    var dur = task.end_date - task.start_date;
+    task.start_date = new Date(limit.start_date);
+    task.end_date = new Date(+task.start_date + dur);
+  }
+
+  function limitResizeLeft(task, limit) {
+    task.end_date = new Date(limit.end_date);
+  }
+
+  function limitResizeRight(task, limit) {
+    task.start_date = new Date(limit.start_date);
+  }
+
+  gantt.attachEvent('onTaskDrag', function (id, mode, task, original, e) {
+    var parent = task.parent ? gantt.getTask(task.parent) : null,
+      children = gantt.getChildren(id),
+      modes = gantt.config.drag_mode;
+
+    var limitLeft = null,
+      limitRight = null;
+
+    if (!(mode == modes.move || mode == modes.resize)) return;
+
+    if (mode == modes.move) {
+      limitLeft = limitMoveLeft;
+      limitRight = limitMoveRight;
+    } else if (mode == modes.resize) {
+      limitLeft = limitResizeLeft;
+      limitRight = limitResizeRight;
+    }
+
+    //check parents constraints
+    if (parent && +parent.end_date < +task.end_date) {
+      limitLeft(task, parent);
+    }
+    if (parent && +parent.start_date > +task.start_date) {
+      limitRight(task, parent);
+    }
+
+    //check children constraints
+    for (var i = 0; i < children.length; i++) {
+      var child = gantt.getTask(children[i]);
+      if (+task.end_date < +child.end_date) {
+        limitLeft(task, child);
+      } else if (+task.start_date > +child.start_date) {
+        limitRight(task, child);
+      }
+    }
+  });
+
+  gantt.config.sort = true;
+  gantt.plugins({
+    multiselect: true
+  });
+
+  //scroll
+  gantt.config.layout = {
+    css: 'gantt_container',
+    cols: [
+      {
+        width: 500,
+        minWidth: 200,
+        maxWidth: 600,
+        rows: [
+          {
+            view: 'grid',
+            scrollX: 'gridScroll',
+            scrollable: true,
+            scrollY: 'scrollVer'
+          },
+
+          // horizontal scrollbar for the grid
+          {
+            view: 'scrollbar',
+            id: 'gridScroll',
+            group: 'horizontal'
+          }
+        ]
+      },
+      {
+        resizer: true,
+        width: 1
+      },
+      {
+        rows: [
+          {
+            view: 'timeline',
+            scrollX: 'scrollHor',
+            scrollY: 'scrollVer'
+          },
+
+          // horizontal scrollbar for the timeline
+          {
+            view: 'scrollbar',
+            id: 'scrollHor',
+            group: 'horizontal'
+          }
+        ]
+      },
+      {
+        view: 'scrollbar',
+        id: 'scrollVer'
+      }
+    ]
+  };
+
+  //search bar
+  // document.addEventListener("DOMContentLoaded", function (event) {
+  //     var filterValue = "";
+  //     gantt.$doFilter = function (value) {
+  //         filterValue = value;
+  //         gantt.refreshData();
+  //     }
+
+  //     gantt.attachEvent("onBeforeTaskDisplay", function (id, task) {
+  //         if (!filterValue) return true;
+
+  //         var normalizedText = task.text.toLowerCase();
+  //         var normalizedValue = filterValue.toLowerCase();
+  //         return normalizedText.indexOf(normalizedValue) > -1;
+  //     });
+
+  //     gantt.attachEvent("onGanttRender", function () {
+  //         gantt.$root.querySelector("[data-text-filter]").value = filterValue;
+  //     })
+
+  //     var textFilter = "<div class='searchEl'>Task name <input data-text-filter id='search' type='text' placeholder='Search tasks...' oninput='gantt.$doFilter(this.value)'></div>";
+
+  // columns definition
+  gantt.config.columns = [
+    {
+      name: 'add',
+      label: '',
+      width: 44,
+      align: 'left'
+    },
+    {
+      name: 'text',
+      label: 'Task name',
+      tree: true,
+      min_width: 180
+    },
+    {
+      name: 'jumlah_lc',
+      label: 'Jumlah LC',
+      align: 'center',
+      min_width: 80
+    },
+    {
+      name: 'owner',
+      align: 'center',
+      width: 75,
+      label: 'Owner',
+      template: function (task) {
+        if (task.type == gantt.config.types.project) {
+          return '';
+        }
+
+        var result = '';
+
+        var owners = task.owners;
+
+        if (!owners || !owners.length) {
+          return 'Unassigned';
+        }
+
+        if (owners.length == 1) {
+          return findUser(owners[0]).label;
+        }
+
+        owners.forEach(function (ownerId) {
+          var owner = findUser(ownerId);
+          if (!owner) return;
+          result += "<div class='owner-label' title='" + owner.label + "'>" + owner.label.substr(0, 1) + '</div>';
+        });
+
+        return result;
+      },
+      resize: true
+    },
+    {
+      name: 'start_date',
+      label: 'Start time',
+      align: 'center',
+      min_width: 80
+    },
+    {
+      name: 'end_date',
+      label: 'End time',
+      align: 'center',
+      min_width: 80
+    },
+    {
+      name: 'duration',
+      label: 'Duration',
+      align: 'center',
+      min_width: 50
+    },
+    {
+      name: 'machine',
+      label: 'Machine',
+      align: 'center',
+      min_width: 130,
+      template: function (obj) {
+        if (obj.machine == '1') return 'Machine 1';
+
+        if (obj.machine == '2') return 'Machine 2';
+
+        return '-';
+      }
+    },
+    {
+      name: 'priority',
+      label: 'Priority',
+      align: 'center',
+      min_width: 80,
+      template: function (obj) {
+        if (obj.priority == 1) return 'Normal';
+
+        if (obj.priority == 2) return 'Medium';
+
+        return 'High';
+      }
+    },
+    {
+      name: 'type',
+      label: 'Type',
+      align: 'center',
+      min_width: 80,
+      template: function (obj) {
+        if (obj.type == 'project') return 'project';
+
+        if (obj.type == 'task') return 'task';
+
+        return '-';
+      }
+    }
+    // {
+    //     name: "add",
+    //     label: "",
+    // }
+  ];
+
+  gantt.templates.grid_row_class = function (start, end, task) {
+    if (task.$level > 1) {
+      return 'task';
+    }
+    return '';
+  };
+
+  gantt.locale.labels.section_priority = 'Priority';
+  gantt.locale.labels.section_text = 'Deskripsi';
+  gantt.locale.labels.section_owner = 'Owner';
+  gantt.locale.labels.section_jumlah_lc = 'Target';
+  gantt.locale.labels.section_machine = 'Machine';
+  gantt.locale.labels.section_workstep = 'Langkah Kerja';
+
+  gantt.config.lightbox.sections = [
+    // {
+    //     name: "text",
+    //     height: 22,
+    //     map_to: "text",
+    //     type: "textarea",
+    //     focus: true,
+    // },
+    {
+      name: 'workstep',
+      height: 22,
+      map_to: 'text',
+      type: 'select',
+      options: gantt.serverList('workstep')
+    },
+    {
+      name: 'priority',
+      height: 22,
+      map_to: 'priority',
+      type: 'select',
+      options: gantt.serverList('priority')
+    },
+    {
+      name: 'type',
+      height: 22,
+      map_to: 'type',
+      type: 'select',
+      options: [
+        {
+          key: 'task',
+          label: 'Task'
+        }
+      ]
+    },
+    {
+      name: 'jumlah_lc',
+      height: 22,
+      map_to: 'jumlah_lc',
+      type: 'textarea',
+      focus: true
+    },
+    {
+      name: 'owner',
+      height: 22,
+      type: 'ownerselect',
+      options: gantt.serverList('people'),
+      map_to: 'owners'
+    },
+    {
+      name: 'machine',
+      height: 22,
+      map_to: 'machine',
+      type: 'select',
+      options: [
+        {
+          key: 1,
+          label: 'Machine 1'
+        },
+        {
+          key: 2,
+          label: 'Machine 2'
+        },
+        {
+          key: 3,
+          label: 'Machine 3'
+        }
+      ]
+    },
+    {
+      name: 'time',
+      height: 25,
+      map_to: 'auto',
+      type: 'duration'
+    }
+  ];
+
+  // var textEditor = {type: "text", map_to: "text"};
+  // 	var dateEditor = {type: "date", map_to: "start_date", min: new Date(2023, 0, 1), max: new Date(2024, 0, 1)};
+  // 	var durationEditor = {type: "number", map_to: "duration", min:0, max: 100};
+  // 	var priority = {type: "select", map_to: "priority", options:gantt.serverList("priority")};
+
+  // 	function priorityLabel(task){
+  // 		var value = task.priority;
+  // 		var list = gantt.serverList("priority");
+  // 		for(var i = 0; i < list.length; i++){
+  // 			if(list[i].key == value){
+  // 				return list[i].label;
+  // 			}
+  // 		}
+  // 		return "";
+  // 	}
+
+  //filter priority
+  var filter_inputs = document.getElementById('filters_wrapper').getElementsByTagName('input');
+  for (var i = 0; i < filter_inputs.length; i++) {
+    var filter_input = filter_inputs[i];
+
+    // attach event handler to update filters object and refresh data (so filters will be applied)
+    filter_input.onchange = function () {
+      gantt.refreshData();
+      updIcon(this);
+    };
+  }
+
+  function hasPriority(parent, priority) {
+    if (gantt.getTask(parent).priority == priority) return true;
+
+    var child = gantt.getChildren(parent);
+    for (var i = 0; i < child.length; i++) {
+      if (hasPriority(child[i], priority)) return true;
+    }
+    return false;
+  }
+
+  gantt.attachEvent('onBeforeTaskDisplay', function (id, task) {
+    for (var i = 0; i < filter_inputs.length; i++) {
+      var filter_input = filter_inputs[i];
+
+      if (filter_input.checked) {
+        if (hasPriority(id, filter_input.name)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  });
+
+  function updIcon(el) {
+    el.parentElement.classList.toggle('checked_label');
+
+    var iconEl = el.parentElement.querySelector('i'),
+      checked = 'check_box',
+      unchecked = 'check_box_outline_blank',
+      className = 'icon_color';
+
+    iconEl.textContent = iconEl.textContent == checked ? unchecked : checked;
+    iconEl.classList.toggle(className);
+  }
+
+  //urgent bar warna
+  gantt.templates.grid_row_class = function (start_date, end_date, item) {
+    if (item.priority == 3) return 'red';
+    if (item.priority == 2) return 'orange';
+    if (item.priority == 1) return '';
+  };
+  gantt.templates.task_row_class = function (start_date, end_date, item) {
+    if (item.priority == 3) return 'red';
+    if (item.priority == 2) return 'orange';
+    if (item.priority == 1) return '';
+  };
+
+  gantt.init('gantt_here');
+
+  gantt.load('/api/data');
+
+  var dp = new gantt.dataProcessor('/api');
+  dp.init(gantt);
+  dp.setTransactionMode('REST');
+</script>
+@endpush
