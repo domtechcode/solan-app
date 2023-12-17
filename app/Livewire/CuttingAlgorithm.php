@@ -383,7 +383,7 @@ class CuttingAlgorithm extends Component
     }
 
     private function calculateNumSheetsAutoRotateSizeSheetInPlano($resultAllSheet, $planoLength, $planoWidth)
-    {
+    {   
         $results = [];
 
         foreach($resultAllSheet as $data){
@@ -436,8 +436,8 @@ class CuttingAlgorithm extends Component
                           'sheetWidth' => (float) $sheetWidth,
                           'cutSheetLength' => (float) $cutSheetLength,
                           'cutSheetWidth' => (float) $cutSheetWidth,
-                          'wasteCutLength' => (float) $planoLength - $cutSheetLength,
-                          'wasteCutWidth' => (float) $planoWidth - $cutSheetWidth,
+                          'wasteCutLength' => (float) $planoLength - $sheetLength,
+                          'wasteCutWidth' => (float) $planoWidth - $sheetWidth,
                           'orientationSheet' => $data['orientationSheet'],
                           'itemsPerSheet' => (int) $data['itemsPerSheet'],
                           'itemsPerPlano' => (int) $data['itemsPerSheet'] * ((int) $col_counter * (int) $row_counter),
@@ -467,19 +467,24 @@ class CuttingAlgorithm extends Component
                       $dataPlano['col_extra_1'] = floor($dataPlano['planoLength_extra_1'] / $dataPlano['sheetWidth']);
                       $dataPlano['row_extra_1'] = floor($dataPlano['planoWidth_extra_1'] / $dataPlano['sheetLength']);
                       $dataPlano['item_per_plano_extra_1'] = $dataPlano['itemsPerSheet'] * ((int) $dataPlano['col_extra_1'] * (int) $dataPlano['row_extra_1']);
-                      $dataPlano['waste_length_extra_1'] = $dataPlano['col_extra_1'] * ((int) $dataPlano['row_extra_1'] - (int) $dataPlano['planoLength_extra_1']);
+                      $dataPlano['waste_length_extra_1'] = $dataPlano['planoLength_extra_1'] - ($dataPlano['col_extra_1'] * $dataPlano['sheetWidth']);
+                      $dataPlano['waste_width_extra_1'] = $dataPlano['planoWidth_extra_1'] - ($dataPlano['row_extra_1'] * $dataPlano['sheetLength']);
 
-                      $dataPlano['col_extra_2'] = floor($dataPlano['planoLength_extra_2'] / $dataPlano['sheetWidth']);
-                      $dataPlano['row_extra_2'] = floor($dataPlano['planoWidth_extra_2'] / $dataPlano['sheetLength']);
+                      $dataPlano['col_extra_2'] = floor($dataPlano['planoLength_extra_2'] / $dataPlano['sheetLength']);
+                      $dataPlano['row_extra_2'] = floor($dataPlano['planoWidth_extra_2'] / $dataPlano['sheetWidth']);
                       $dataPlano['item_per_plano_extra_2'] = $dataPlano['itemsPerSheet'] * ((int) $dataPlano['col_extra_2'] * (int) $dataPlano['row_extra_2']);
+                      $dataPlano['waste_length_extra_2'] = $dataPlano['planoLength_extra_2'] - ($dataPlano['col_extra_2'] * $dataPlano['sheetLength']);
+                      $dataPlano['waste_width_extra_2'] = $dataPlano['planoWidth_extra_2'] - ($dataPlano['row_extra_2'] * $dataPlano['sheetWidth']);
 
-                      $dataPlano['totalItems'] = $dataPlano['itemsPerPlano'] + ((int) $dataPlano['item_per_plano_extra_1'] + (int) $dataPlano['item_per_plano_extra_2']);
+                    //   $dataPlano['totalItems'] = $dataPlano['itemsPerPlano'] + ((int) $dataPlano['item_per_plano_extra_1'] + (int) $dataPlano['item_per_plano_extra_2']);
 
                       $results[] = $dataPlano;
                   }
               }
           }
         }
+
+
         dd($results);
 
         $maxTotalItems = 0;
